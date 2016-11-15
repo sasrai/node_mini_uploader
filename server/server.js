@@ -2,6 +2,7 @@
 
 // server.js
 var express = require('express');
+var morgan = require('morgan');
 var multer = require('multer');
 var fs = require('fs');
 var md5File = require('md5-file');
@@ -9,6 +10,7 @@ var md5File = require('md5-file');
 var app = express();
 
 // ミドルウェア
+app.use(morgan('dev'));
 const upload = multer({ dest: 'schematics' });
 
 // config
