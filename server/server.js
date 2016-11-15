@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // GETリクエストのハンドリング
-app.get('/schematics', (req, res) => {
+app.get('/+schematics', (req, res) => {
   fs.readdir('./schematics/', (err, files) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -36,7 +36,7 @@ app.get('/schematics', (req, res) => {
   });
 });
 
-app.get('/schematics/:sch_name', (req, res) => {
+app.get('/+schematics/:sch_name', (req, res) => {
   console.log("show schematics info - " + req.params.sch_name);
   const target = `${schDirectory}/${req.params.sch_name}.schematic`;
   console.log(target);
@@ -62,7 +62,7 @@ app.get('/schematics/:sch_name', (req, res) => {
   }
 });
 
-app.get('/schematics/:sch_name/download', (req, res) => {
+app.get('/+schematics/:sch_name/download', (req, res) => {
   const target = `${schDirectory}/${req.params.sch_name}.schematic`;
   if (fs.existsSync(target)) {
     res.download(target);
@@ -73,7 +73,7 @@ app.get('/schematics/:sch_name/download', (req, res) => {
 });
 
 // POSTリクエストのハンドリング
-app.post('/schematics/upload', upload.single('sch_file'), function (req, res, next) {
+app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, next) {
   if (req.file && req.body.title) {
     const upload_name = `schematics/${req.file.originalname}`;
 
