@@ -1,0 +1,73 @@
+'use strict'
+
+// server.js
+var express = require('express');
+var multer = require('multer');
+var fs = require('fs');
+var md5File = require('md5-file');
+
+var app = express();
+
+// ミドルウェア
+const upload = multer({ dest: 'schematics' });
+
+// rootはアクセスできましぇん
+app.get('/', (req, res) => {
+  res.statusCode = 404
+  res.end()
+});
+
+// GETリクエストのハンドリング
+app.get('/schematics', (req, res) => {
+  fs.readdir('./schematics/', (err, files) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    if (err) { res.end('{status: error}'); }
+    else res.end(JSON.stringify(files.filter(fn => fn.endsWith('.schematic'))));
+  });
+});
+
+// POSTリクエストのハンドリング
+app.post('/schematics/upload', upload.single('sch_file'), function (req, res, next) {
+  if (req.file && req.body.title) {
+    const upload_name = `schematics/${req.file.originalname}`;
+
+    // TODO: md5で上書きチェックを追加
+    Promise.resolve(new Promise((resolve, reject) => {
+      fs.rename(req.file.path, upload_name, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    })).then(() => new Promise((resolve, reject) => {
+      // その他情報をメモする
+      fs.writeFile(`${upload_name}.json`, JSON.stringify( {
+        title: req.body.title,
+        description: req.body.description,
+        upload_date: Date.now() } ),
+        (err) => {
+          if (err) reject(err);
+          else {
+            resolve({ status: 'success', file: upload_name });
+          }
+        });
+    })).then((result) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.end(JSON.stringify(result));
+    }).catch((err) => {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.end(JSON.stringify({ status: 'error', message: err.message, error: err }));
+    });
+
+  } else {
+    res.statusCode = 400;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end('{status:error,message:"Invalid API Syntax"}');
+  }
+});
+
+app.listen(8334, () => {
+  console.log("server has started.");
+});
+

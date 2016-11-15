@@ -1,0 +1,20 @@
+{
+  "name": "worldedit-uploader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "start.dev": "nodemon -i schematics server.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "finalhandler": "^0.5.1",
+    "md5-file": "^3.1.1",
+    "multer": "^1.2.0",
+    "router": "^1.1.4"
+  }
+}
