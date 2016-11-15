@@ -11,10 +11,13 @@ var app = express();
 // ミドルウェア
 const upload = multer({ dest: 'schematics' });
 
+// config
+const schDirectory = './schematics';
+
 // rootはアクセスできましぇん
 app.get('/', (req, res) => {
-  res.statusCode = 404
-  res.end()
+  res.statusCode = 404;
+  res.end();
 });
 
 // GETリクエストのハンドリング
@@ -23,8 +26,48 @@ app.get('/schematics', (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     if (err) { res.end('{status: error}'); }
-    else res.end(JSON.stringify(files.filter(fn => fn.endsWith('.schematic'))));
+    else {
+      let _files = files.filter(fn => fn.endsWith('.schematic'))
+                        .map(fn => fn.replace(/\.schematic$/, ''));
+      res.end(JSON.stringify(_files));
+    }
   });
+});
+
+app.get('/schematics/:sch_name', (req, res) => {
+  console.log("show schematics info - " + req.params.sch_name);
+  const target = `${schDirectory}/${req.params.sch_name}.schematic`;
+  console.log(target);
+  if (fs.existsSync(target)) {
+    Promise.resolve(new Promise((resolve, reject) => {
+      fs.readFile(`${target}.json`, (err, data) => {
+        if (err) reject(err);
+        else resolve(data);
+      });
+    })).then((data) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.end(data);
+    }).catch((err) => {
+      res.statusCode = 403;
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.end(JSON.stringify({ status: 'read error', error: err }));
+    });
+  } else {
+    console.log("404 - " + req.params.sch_name);
+    res.statusCode = 404;
+    res.end();
+  }
+});
+
+app.get('/schematics/:sch_name/download', (req, res) => {
+  const target = `${schDirectory}/${req.params.sch_name}.schematic`;
+  if (fs.existsSync(target)) {
+    res.download(target);
+  } else {
+    res.statusCode = 404;
+    res.end();
+  }
 });
 
 // POSTリクエストのハンドリング
