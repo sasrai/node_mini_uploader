@@ -7,6 +7,8 @@ var multer = require('multer');
 var fs = require('fs');
 var md5File = require('md5-file');
 
+var Util = require('./util.js');
+
 var app = express();
 
 // ミドルウェア
@@ -40,20 +42,14 @@ app.get('/+schematics', (req, res) => {
 });
 
 app.get('/+schematics/:sch_name', (req, res) => {
-  console.log("show schematics info - " + req.params.sch_name);
   const target = `${schDirectory}/${req.params.sch_name}.schematic`;
-  console.log(target);
   if (fs.existsSync(target)) {
-    Promise.resolve(new Promise((resolve, reject) => {
-      fs.readFile(`${target}.json`, (err, data) => {
-        if (err) reject(err);
-        else resolve(data);
-      });
-    })).then((data) => {
+    Promise.resolve(Util.readSchematicJSON(target))
+    .then((data) => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-      res.end(data);
+      res.end(JSON.stringify(data));
     }).catch((err) => {
       res.statusCode = 403;
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
