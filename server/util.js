@@ -1,10 +1,11 @@
 var fs = require('fs');
+var path = require('path');
 
 module.exports = {
   readSchematicJSON: function (filename, isSecure = true) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       fs.readFile(`${filename}.json`, (err, data) => {
-        if (err) reject(err);
+        if (err) resolve(JSON.parse({title: 'undefined', description: 'info load error.', upload_date: ''}));
         else resolve(JSON.parse(data));
       });
     })
@@ -17,6 +18,7 @@ module.exports = {
           if (json[removeKeys[i]]) delete json[removeKeys[i]];
         }
       }
+      json['filename'] = path.basename(filename);
       return json;
     })
   }

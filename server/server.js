@@ -28,15 +28,24 @@ app.get('/', (req, res) => {
 
 // GETリクエストのハンドリング
 app.get('/+schematics', (req, res) => {
-  fs.readdir('./schematics/', (err, files) => {
+  fs.readdir(schDirectory, (err, files) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
     if (err) { res.end('{status: error}'); }
     else {
-      let _files = files.filter(fn => fn.endsWith('.schematic'))
-                        .map(fn => { return {filename: fn.replace(/\.schematic$/, '') } });
-      res.end(JSON.stringify(_files));
+      const filenames = files.filter(fn => fn.endsWith('.schematic'));
+      const _files = filenames.map(fn => { return {filename: fn.replace(/\.schematic$/, '') } });
+
+      const asyncReadInfos = [];
+      for (var i = 0; i < filenames.length; i++) {
+        asyncReadInfos.push( Util.readSchematicJSON(`${schDirectory}/${filenames[i]}`) );
+      }
+
+      Promise.all(asyncReadInfos)
+      .then((results) => {
+        res.end(JSON.stringify(results));
+      });
     }
   });
 });
