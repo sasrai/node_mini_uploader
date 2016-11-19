@@ -3,7 +3,7 @@ var lastUpdateTime = -1;
 var uploadFilesCache = [];
 
 function reloadSchematics() {
-  axios.get(uploaderApiURL + '/schematics?' + Date.now())
+  axios.get(`${uploaderApiURL}/schematics?${Date.now()}`)
   .then((response) => {
     schFilesHelper.updateData(response.data);
   })
@@ -19,7 +19,7 @@ function uploadSchematicFile(file, props, cb) {
   }
   data.append('sch_file', file);
 
-  axios.post(uploaderApiURL + '/schematics/upload', data)
+  axios.post(`${uploaderApiURL}/schematics/upload`, data)
   .then((response) => {
     setTimeout(() => $('#sch-files').bootstrapTable('refresh'));
     if (cb && typeof cb == 'function') cb(null, response);
@@ -54,8 +54,6 @@ function renderOutput(files) {
                     '<button type="button" class="btn btn-secondary cancel">キャンセル</button>',
                   '</div>',
                 '</div>',
-                // f.size, ' bytes, last modified: ',
-                // f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
                 '</div></div>');
   }
   document.getElementById('list').innerHTML = '<ul class="container-fluid">' + output.join('') + '</ul>';
