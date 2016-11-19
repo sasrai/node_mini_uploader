@@ -39,7 +39,7 @@ function renderOutput(files) {
                 '<div class="container-fluid">',
                   '<div class="form-group">',
                     '<label for="' + i + '-title">タイトル</label>',
-                    '<input class="form-control" name="title" id="' + i + '-title" placeholder="表示タイトルを入力してください(任意)">',
+                    '<input class="form-control" name="title" id="' + i + '-title" placeholder="表示タイトルを入力してください(必須)">',
                   '</div>',
                   '<div class="form-group">',
                     '<label for="' + i + '-description">詳細</label>',
@@ -60,12 +60,35 @@ function renderOutput(files) {
   }
   document.getElementById('list').innerHTML = '<ul class="container-fluid">' + output.join('') + '</ul>';
 
+  // 全部のキー操作イベントでバリデーションチェックかける
+  $('.sch-upload-items input[name=title]').on('blur keypress keyup', function() {
+    if ($(this).val().length > 0) {
+      $(this).parents('.form-group').removeClass('has-danger');
+      $(this).removeClass('form-control-danger');
+      $(this).parents('.sch-upload-items').find('button.upload').removeAttr('disabled');
+    } else {
+      $(this).parents('.form-group').addClass('has-danger');
+      $(this).addClass('form-control-danger');
+      $(this).parents('.sch-upload-items').find('button.upload').attr('disabled', 'disabled');
+    }
+  }).trigger('blur');
+
   $('.sch-upload-items button.upload').on('click', function (evt) {
     var item = $(this).parents('.sch-upload-items');
     var id = item.data('id');
     var props = {
       title: $('input[name=title]', item).val(),
-      description: $('textarea[name=description]', item).val()
+      description: $('textarea[name=description]', item).val(),
+    }
+
+    var delkey = $('input[name=delete_key]', item).val()
+    if (delkey) { // 16進数化
+      var shainfo = CryptoJS.SHA256(delkey);
+      var hashstr = '';
+      for (var i = 0; i < shainfo.words.length; i++) {
+        hashstr += (shainfo.words[i] >>> 0).toString(16);
+      }
+      props['delete_key'] = hashstr;
     }
 
     $('button', item).attr('disabled', 'disabled');
