@@ -14,9 +14,9 @@ function reloadSchematics() {
 
 function uploadSchematicFile(file, props, cb) {
   var data = new FormData();
-  data.append('title', props['title']);
-  data.append('description', props['description']);
-  data.append('delete_key', props['delete_key']);
+  for (var k in props) {
+    data.append(k, props[k]);
+  }
   data.append('sch_file', file);
 
   axios.post(uploaderApiURL + '/schematics/upload', data)
@@ -82,7 +82,7 @@ function renderOutput(files) {
     }
 
     var delkey = $('input[name=delete_key]', item).val()
-    if (delkey) { // 16進数化
+    if (delkey && delkey != '') { // 16進数化
       var shainfo = CryptoJS.SHA256(delkey);
       var hashstr = '';
       for (var i = 0; i < shainfo.words.length; i++) {
