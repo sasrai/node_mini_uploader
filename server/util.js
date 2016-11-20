@@ -5,7 +5,7 @@ module.exports = {
   readSchematicJSON: function (filename, isSecure = true) {
     return new Promise((resolve) => {
       fs.readFile(`${filename}.json`, (err, data) => {
-        if (err) resolve(JSON.parse({title: 'undefined', description: 'info load error.', upload_date: ''}));
+        if (err) resolve({title: 'undefined', description: 'info load error.', upload_date: '', error: err});
         else resolve(JSON.parse(data));
       });
     })
