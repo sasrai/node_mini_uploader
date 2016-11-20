@@ -143,10 +143,24 @@ dropZone.addEventListener('drop', handleFileSelect, false);
 // document.getElementById('sch-reload').addEventListener('click', reloadSchematics, false);
 $('#sch-files').bootstrapTable({
   toolbar: '#sch-toolbar',
+  sortName: 'upload_date',
+  sortOrder: 'desc',
   columns: [
-    { title: '名前', field: 'title' },
-    { title: 'ファイル名', field: 'filename' },
-    { title: 'アップロード日時', field: 'upload_date', formatter: (d) => {console.log(); return ''} },
+    { title: '名前', field: 'title', sortable: true },
+    { title: 'ファイル名', field: 'filename', sortable: true },
+    { title: 'アップロード日時', field: 'upload_date', sortable: true,
+      formatter: (param, record, id) => {
+        if (!param || param < 1) return ''
+
+        const date = new Date(param);
+        return [
+          date.getFullYear(),
+          date.getMonth() + 1,
+          date.getDate()
+        ].join( '/' ) + ' '
+        + date.toLocaleTimeString();
+      }
+    },
     { title: '詳細', field: 'description' },
     { title: 'ダウンロード', field: 'download',
       formatter: (param, record, id) => {
