@@ -34,7 +34,7 @@ function renderOutput(files) {
   // files is a FileList of File objects. List some properties.
   var output = [];
   for (var i = 0, f; f = files[i]; i++) {
-    output.push('<div class="sch-upload-items col-xs-12 col-sm-6 col-md-4" data-id=' + i + '><div class="border-box">',
+    output.push('<div class="sch-upload-items col-xs-12 col-sm-12 col-md-6 col-lg-4" data-id=' + i + '><div class="border-box">',
                 '<p class="filename"><strong>' + escape(f.name) + '</strong></p>',
                 '<div class="container-fluid">',
                   '<div class="form-group">',
