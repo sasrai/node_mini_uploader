@@ -147,8 +147,8 @@ $('#sch-files').bootstrapTable({
   sortOrder: 'desc',
   columns: [
     { title: '名前', field: 'title', sortable: true },
-    { title: 'ファイル名', field: 'filename', sortable: true },
-    { title: 'アップロード日時', field: 'upload_date', sortable: true,
+    { title: 'ファイル名', field: 'filename', class: 'small', sortable: true },
+    { title: 'アップロード日時', field: 'upload_date', class: 'small', sortable: true,
       formatter: (param, record, id) => {
         if (!param || param < 1) return ''
 
@@ -161,7 +161,7 @@ $('#sch-files').bootstrapTable({
         + date.toLocaleTimeString();
       }
     },
-    { title: '詳細', field: 'description' },
+    { title: '詳細', field: 'description', class: 'small' },
     { title: 'ダウンロード', field: 'download',
       formatter: (param, record, id) => {
         var downloadUrl = uploaderApiURL + '/schematics/' + record.filename + '/download';
