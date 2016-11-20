@@ -145,6 +145,8 @@ $('#sch-files').bootstrapTable({
   toolbar: '#sch-toolbar',
   sortName: 'upload_date',
   sortOrder: 'desc',
+  pagination: true,
+  search: true,
   columns: [
     { title: '名前', field: 'title', sortable: true },
     { title: 'ファイル名', field: 'filename', class: 'small', sortable: true },
