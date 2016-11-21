@@ -12,7 +12,11 @@ var Util = require('./util.js');
 var app = express();
 
 // ミドルウェア
-app.use(morgan('dev'));
+morgan.token('remote-addr', function (req, res) {
+    var ffHeaderValue = req.headers['x-forwarded-for'];
+    return ffHeaderValue || req.connection.remoteAddress;
+});
+app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-version" :status - :response-time ms'));
 const upload = multer({ dest: 'schematics' });
 
 // config
