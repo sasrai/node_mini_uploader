@@ -57,7 +57,7 @@ app.get('/+schematics', (req, res) => {
 });
 
 app.get('/+schematics/:sch_name', (req, res) => {
-  const target = `${schDirectory}/${req.params.sch_name}.schematic`;
+  const target = Util.getSchemFilePath(req.params.sch_name);
   if (fs.existsSync(target)) {
     Promise.resolve(Util.readSchematicJSON(target))
     .then((data) => {
@@ -79,7 +79,7 @@ app.get('/+schematics/:sch_name', (req, res) => {
 });
 
 app.get('/+schematics/:sch_name/download', (req, res) => {
-  const target = `${schDirectory}/${req.params.sch_name}.schematic`;
+  const target = Util.getSchemFilePath(req.params.sch_name);
   if (fs.existsSync(target)) {
     res.download(target);
   } else {
@@ -91,7 +91,8 @@ app.get('/+schematics/:sch_name/download', (req, res) => {
 // POSTリクエストのハンドリング
 app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, next) {
   if (req.file && req.body.title) {
-    const upload_name = `schematics/${req.file.originalname}`;
+    const sch_name = path.basename(req.file.originalname, '.schematic');
+    const upload_name = Util.getSchemFilePath(sch_name);
 
     // TODO: md5で上書きチェックを追加
     // TODO: 削除キーで上書きロックを追加

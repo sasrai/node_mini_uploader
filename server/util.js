@@ -1,7 +1,15 @@
 var fs = require('fs');
 var path = require('path');
+var config = require('config');
+
 
 module.exports = {
+  getSchemFilePath: function (filename) {
+    return `${config.get('App.uploader.dirs.schematics')}/${filename}.schematic`;
+  },
+  getInfoFilePath: function (filename) {
+    return `${config.get('App.uploader.dirs.infoFiles')}/${filename}.json`;
+  },
   readSchematicJSON: function (filename, isSecure = true) {
     return new Promise((resolve) => {
       fs.readFile(`${filename}.json`, (err, data) => {
