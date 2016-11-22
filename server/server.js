@@ -102,15 +102,19 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
       });
     })).then(() => new Promise((resolve, reject) => {
       // その他情報をメモする
-      fs.writeFile(`${upload_name}.json`, JSON.stringify( {
+      const fileInfo = {
         title: req.body.title,
+        original_name: req.file.originalname,
         description: req.body.description,
         delete_key: req.body.delete_key,
-        upload_date: Date.now() } ),
+        upload_date: Date.now()
+      };
+
+      fs.writeFile(Util.getSchemFilePath(sch_name), JSON.stringify(fileInfo),
         (err) => {
           if (err) reject(err);
           else {
-            resolve({ status: 'success', file: upload_name });
+            resolve({ status: 'success', info: fileInfo });
           }
         });
     })).then((result) => {
@@ -129,7 +133,7 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
     res.statusCode = 400;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-    res.end('{status:error,message:"Invalid API Syntax"}');
+    res.end('{"status":"error","message":"Invalid API Syntax"}');
   }
 });
 
