@@ -13,7 +13,7 @@ module.exports = {
   readSchematicJSON(sch_name, isSecure = true) {
     return new Promise((resolve) => {
       fs.readFile(this.getInfoFilePath(sch_name), (err, data) => {
-        if (err) resolve({title: 'undefined', description: 'info load error.', upload_date: ''});
+        if (err) resolve({title: '', description: 'missing info.', upload_date: '', missingInfoFile: true});
         else resolve(JSON.parse(data));
       });
     })
@@ -29,5 +29,11 @@ module.exports = {
       json['filename'] = sch_name;
       return json;
     })
+    .then((json) => new Promise((resolve, reject) => {
+      fs.stat(this.getSchemFilePath(sch_name), (err, stats) => {
+        json['modified_date'] = (new Date(stats.mtime)).getTime();
+        resolve(json);
+      })
+    }))
   }
 }
