@@ -18,7 +18,7 @@ module.exports = {
           if (json[removeKeys[i]]) delete json[removeKeys[i]];
         }
       }
-      json['filename'] = path.basename(filename);
+      json['filename'] = path.basename(filename, '.schematic');
       return json;
     })
   }
