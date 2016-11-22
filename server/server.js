@@ -135,7 +135,12 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
 
 // TODO: deleteメソッドの実装
 // 削除キーが一致、もしくは未設定の場合に削除実行
-app.get('/+schematics/:sch_name/download', (req, res) => {
+app.delete('/+schematics/:sch_name', (req, res) => {
+  console.log("delete => " + req.params.sch_name);
+  res.statusCode = 400;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
+  res.end('{"status":"error","message":"Invalid API Syntax"}');
 });
 
 app.listen(config.get('Server.Port'), () => {
