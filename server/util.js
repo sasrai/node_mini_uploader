@@ -4,13 +4,13 @@ var config = require('config');
 
 
 module.exports = {
-  getSchemFilePath: function (filename) {
-    return `${config.get('App.uploader.dirs.schematics')}/${filename}.schematic`;
+  getSchemFilePath(sch_name) {
+    return `${config.get('App.uploader.dirs.schematics')}/${sch_name}.schematic`;
   },
-  getInfoFilePath: function (filename) {
-    return `${config.get('App.uploader.dirs.infoFiles')}/${filename}.json`;
+  getInfoFilePath(sch_name) {
+    return `${config.get('App.uploader.dirs.infoFiles')}/${sch_name}.json`;
   },
-  readSchematicJSON: function (filename, isSecure = true) {
+  readSchematicJSON(sch_name, isSecure = true) {
     return new Promise((resolve) => {
       fs.readFile(`${filename}.json`, (err, data) => {
         if (err) resolve({title: 'undefined', description: 'info load error.', upload_date: '', error: err});
@@ -26,7 +26,7 @@ module.exports = {
           if (json[removeKeys[i]]) delete json[removeKeys[i]];
         }
       }
-      json['filename'] = path.basename(filename, '.schematic');
+      json['filename'] = sch_name;
       return json;
     })
   }
