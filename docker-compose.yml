@@ -7,7 +7,7 @@ services:
     volumes:
       - "./server:/app"
       - "./data/node_modules:/app/node_modules"
-      - "/foo/var/plugins/WorldEdit/schematics:/app/schematics"
+      - "${SCHEMATICS_DIRECTORY}:/app/schematics"
   uploader:
     build:
       context: .

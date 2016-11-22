@@ -1,9 +1,5 @@
 FROM node:7.1
 
-# create cache directory
-RUN mkdir /.npm
-RUN chown -R 1000.1000 /.npm
-
 WORKDIR /app
 
 ENV ENTRYKIT_VERSION 0.4.0
@@ -16,6 +12,14 @@ RUN apt-get install -y openssl \
   && mv entrykit /bin/entrykit \
   && chmod +x /bin/entrykit \
   && entrykit --symlink
+
+# create cache directory
+RUN mkdir /.npm
+RUN mkdir /.config
+
+# update owner
+RUN chown -R 1000.1000 /.npm
+RUN chown -R 1000.1000 /.config
 
 ENTRYPOINT [ "prehook", "node -v", "--" \
 # , "prehook", "bundle install -j4 --quiet --path vendor/bundle", "--" \
