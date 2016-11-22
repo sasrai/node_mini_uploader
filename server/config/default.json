@@ -1,0 +1,15 @@
+{
+  "Server": {
+    "Port": 8334,
+    "Debug": true,
+    "AccessOriginURL": "http://localhost:8001"
+  },
+  "App": {
+    "uploader": {
+      "dirs": {
+        "schematics": "./schematics",
+        "infoFiles": "./schematics/json"
+      }
+    }
+  }
+}

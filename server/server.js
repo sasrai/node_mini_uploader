@@ -7,6 +7,8 @@ var multer = require('multer');
 var fs = require('fs');
 var md5File = require('md5-file');
 
+var config = require('config');
+
 var Util = require('./util.js');
 
 var app = express();
@@ -20,9 +22,10 @@ app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-
 const upload = multer({ dest: 'schematics' });
 
 // config
-const schDirectory = './schematics';
-const isDebug = true;
-const accessOrigin = 'http://localhost:8001';
+const schDirectory = config.get('App.uploader.dirs.schematics');
+const isDebug = config.get('Server.Debug');
+if (isDebug) console.log("Server is Debug(Develop) Mode.");
+const accessOrigin = isDebug && config.get('Server.AccessOriginURL');
 
 // rootはアクセスできましぇん
 app.get('/', (req, res) => {
@@ -136,7 +139,7 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
 app.get('/+schematics/:sch_name/download', (req, res) => {
 });
 
-app.listen(8334, () => {
+app.listen(config.get('Server.Port'), () => {
   console.log("server has started.");
 });
 
