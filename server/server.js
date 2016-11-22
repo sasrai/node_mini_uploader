@@ -22,8 +22,8 @@ if (isDebug) console.log("Server is Debug(Develop) Mode.");
 
 // ミドルウェア
 morgan.token('remote-addr', function (req, res) {
-    var ffHeaderValue = req.headers['x-forwarded-for'];
-    return ffHeaderValue || req.connection.remoteAddress;
+  var ffHeaderValue = req.headers['x-forwarded-for'];
+  return ffHeaderValue || req.connection.remoteAddress;
 });
 app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-version" :status - :response-time ms'));
 const upload = multer({ dest: 'schematics' });
@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 // GETリクエストのハンドリング
 app.get('/+schematics', (req, res) => {
   fs.readdir(schDirectory, (err, files) => {
-    if (err) { res.end('{status: error}'); }
+    if (err) res.json({status: "error", message: err.Error});
     else {
       const filenames = files.filter(fn => fn.endsWith('.schematic'));
 
@@ -53,9 +53,7 @@ app.get('/+schematics', (req, res) => {
       }
 
       Promise.all(asyncReadInfos)
-      .then((results) => {
-        res.json(results);
-      });
+      .then((results) => res.json(results));
     }
   });
 });
@@ -64,11 +62,8 @@ app.get('/+schematics/:sch_name', (req, res) => {
   const target = Util.getSchemFilePath(req.params.sch_name);
   if (fs.existsSync(target)) {
     Promise.resolve(Util.readSchematicJSON(target))
-    .then((data) => {
-      res.json(data);
-    }).catch((err) => {
-      res.status(403).json({ status: 'read error', error: err });
-    });
+    .then((data) => res.json(data))
+    .catch((err) => res.status(403).json({ status: 'read error', error: err }));
   } else res.status(404).end();
 });
 
@@ -91,7 +86,8 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
         if (err) reject(err);
         else resolve();
       });
-    })).then(() => new Promise((resolve, reject) => {
+    }))
+    .then(() => new Promise((resolve, reject) => {
       // その他情報をメモする
       const fileInfo = {
         title: req.body.title,
@@ -104,15 +100,13 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
       fs.writeFile(Util.getSchemFilePath(sch_name), JSON.stringify(fileInfo),
         (err) => {
           if (err) reject(err);
-          else {
-            resolve({ status: 'success', info: fileInfo });
-          }
+          else resolve({ status: 'success', info: fileInfo });
         });
-    })).then((result) => {
-      res.json(result);
-    }).catch((err) => {
-      res.status(500).json({ status: 'error', message: err.message, error: err });
-    });
+    }))
+    .then((result) => res.json(result))
+    .catch((err) => res.status(500).json({
+      status: 'error', message: err.error
+    }));
 
   } else {
     res.status(400).json({ status: "error", message: "Invalid API Syntax"});
