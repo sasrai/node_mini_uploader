@@ -87,6 +87,11 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
         else resolve();
       });
     }))
+    .then(() => new Promise((resolve) => {
+      // infoディレクトリが無かったら作成
+      const dir = config.get('App.uploader.dirs.infoFiles');
+      if (fs.existsSync(dir)) fs.mkdir(dir, (err) => resolve());
+    }))
     .then(() => new Promise((resolve, reject) => {
       // その他情報をメモする
       const fileInfo = {
@@ -97,7 +102,7 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
         upload_date: Date.now()
       };
 
-      fs.writeFile(Util.getSchemFilePath(sch_name), JSON.stringify(fileInfo),
+      fs.writeFile(Util.getInfoFilePath(sch_name), JSON.stringify(fileInfo),
         (err) => {
           if (err) reject(err);
           else resolve({ status: 'success', info: fileInfo });
