@@ -26,7 +26,7 @@ morgan.token('remote-addr', function (req, res) {
   return ffHeaderValue || req.connection.remoteAddress;
 });
 app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-version" :status - :response-time ms'));
-const upload = multer({ dest: 'schematics' });
+const uploader = multer({ dest: 'schematics' });
 
 const corsOptions = {
   optionsSuccessStatus: 200
@@ -74,7 +74,7 @@ app.get('/+schematics/:sch_name/download', (req, res) => {
 });
 
 // POSTリクエストのハンドリング
-app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, next) {
+app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res, next) {
   if (req.file && req.body.title) {
     const sch_name = path.basename(req.file.originalname, '.schematic');
     const upload_name = Util.getSchemFilePath(sch_name);
@@ -118,11 +118,41 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
   }
 });
 
-// TODO: deleteメソッドの実装
 // 削除キーが一致、もしくは未設定の場合に削除実行
-app.delete('/+schematics/:sch_name', (req, res) => {
+app.delete('/+schematics/:sch_name', uploader.single('delete_key'), (req, res) => {
   console.log("delete => " + req.params.sch_name);
-  res.status(400).json({ status: "error", message: "Invalid API Syntax"});
+
+  Util.canDeleteFileOfSchematic(req.params.sch_name, req.body.delete_key)
+  .then((canDelete) => {
+    console.log("delete check => " + canDelete);
+    // 削除キーチェックに引っかかった場合はrejectしてcatchへ飛ばす
+    if (!canDelete) return Promise.reject({ Error: "Delete key does not match", Status: 403 });
+  })
+  .then(Util.readSchematicJSON(req.params.sch_name))
+  .then((fileInfo) => new Promise((resolve, reject) => {
+    // 削除処理1
+    fs.unlink(Util.getSchemFilePath(req.params.sch_name), (err) => {
+      if (err) reject(err);
+      else resolve(fileInfo);
+    });
+  }))
+  .then((fileInfo) => new Promise((resolve, reject) => {
+    // 削除処理2
+    fs.unlink(Util.getInfoFilePath(req.params.sch_name), (err) => {
+      if (err) reject(err);
+      else resolve(fileInfo);
+    });
+  }))
+  .then((fileInfo) => {
+    // 削除完了レスポンス
+    res.json({ status: 'success', fileInfo });
+  })
+  .catch((err) => {
+    // エラー返答
+    let stcode = 400;
+    if (err.Status) stcode = err.Status;
+    res.status(stcode).json({ status: "error", message: err.Error });
+  })
 });
 
 app.listen(config.get('Server.Port'), () => {
