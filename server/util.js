@@ -12,7 +12,7 @@ module.exports = {
   },
   readSchematicJSON(sch_name, isSecure = true) {
     return new Promise((resolve) => {
-      fs.readFile(`${filename}.json`, (err, data) => {
+      fs.readFile(this.getInfoFilePath(sch_name), (err, data) => {
         if (err) resolve({title: 'undefined', description: 'info load error.', upload_date: '', error: err});
         else resolve(JSON.parse(data));
       });

@@ -4,7 +4,9 @@
 var express = require('express');
 var morgan = require('morgan');
 var multer = require('multer');
+var cors = require('cors');
 var fs = require('fs');
+var path = require('path');
 var md5File = require('md5-file');
 
 var config = require('config');
@@ -12,6 +14,11 @@ var config = require('config');
 var Util = require('./util.js');
 
 var app = express();
+
+// config
+const schDirectory = config.get('App.uploader.dirs.schematics');
+const isDebug = config.get('Server.Debug');
+if (isDebug) console.log("Server is Debug(Develop) Mode.");
 
 // ミドルウェア
 morgan.token('remote-addr', function (req, res) {
@@ -21,36 +28,33 @@ morgan.token('remote-addr', function (req, res) {
 app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-version" :status - :response-time ms'));
 const upload = multer({ dest: 'schematics' });
 
-// config
-const schDirectory = config.get('App.uploader.dirs.schematics');
-const isDebug = config.get('Server.Debug');
-if (isDebug) console.log("Server is Debug(Develop) Mode.");
-const accessOrigin = isDebug && config.get('Server.AccessOriginURL');
+const corsOptions = {
+  optionsSuccessStatus: 200
+}
+if (isDebug) corsOptions.origin = config.get('Server.AccessOriginURL');
+app.use(cors(corsOptions));
+
 
 // rootはアクセスできましぇん
 app.get('/', (req, res) => {
-  res.statusCode = 404;
-  res.end();
+  res.status(404).end();
 });
 
 // GETリクエストのハンドリング
 app.get('/+schematics', (req, res) => {
   fs.readdir(schDirectory, (err, files) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
     if (err) { res.end('{status: error}'); }
     else {
       const filenames = files.filter(fn => fn.endsWith('.schematic'));
 
       const asyncReadInfos = [];
       for (var i = 0; i < filenames.length; i++) {
-        asyncReadInfos.push( Util.readSchematicJSON(`${schDirectory}/${filenames[i]}`) );
+        asyncReadInfos.push( Util.readSchematicJSON(filenames[i].replace(/.schematic$/, '')) );
       }
 
       Promise.all(asyncReadInfos)
       .then((results) => {
-        res.end(JSON.stringify(results));
+        res.json(results);
       });
     }
   });
@@ -61,31 +65,17 @@ app.get('/+schematics/:sch_name', (req, res) => {
   if (fs.existsSync(target)) {
     Promise.resolve(Util.readSchematicJSON(target))
     .then((data) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-      res.end(JSON.stringify(data));
+      res.json(data);
     }).catch((err) => {
-      res.statusCode = 403;
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-      res.end(JSON.stringify({ status: 'read error', error: err }));
+      res.status(403).json({ status: 'read error', error: err });
     });
-  } else {
-    console.log("404 - " + req.params.sch_name);
-    res.statusCode = 404;
-    res.end();
-  }
+  } else res.status(404).end();
 });
 
 app.get('/+schematics/:sch_name/download', (req, res) => {
   const target = Util.getSchemFilePath(req.params.sch_name);
-  if (fs.existsSync(target)) {
-    res.download(target);
-  } else {
-    res.statusCode = 404;
-    res.end();
-  }
+  if (fs.existsSync(target)) res.download(target);
+  else res.status(404).end();
 });
 
 // POSTリクエストのハンドリング
@@ -119,22 +109,13 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
           }
         });
     })).then((result) => {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-      res.end(JSON.stringify(result));
+      res.json(result);
     }).catch((err) => {
-      res.statusCode = 500;
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-      res.end(JSON.stringify({ status: 'error', message: err.message, error: err }));
+      res.status(500).json({ status: 'error', message: err.message, error: err });
     });
 
   } else {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-    res.end('{"status":"error","message":"Invalid API Syntax"}');
+    res.status(400).json({ status: "error", message: "Invalid API Syntax"});
   }
 });
 
@@ -142,10 +123,7 @@ app.post('/+schematics/upload', upload.single('sch_file'), function (req, res, n
 // 削除キーが一致、もしくは未設定の場合に削除実行
 app.delete('/+schematics/:sch_name', (req, res) => {
   console.log("delete => " + req.params.sch_name);
-  res.statusCode = 400;
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  if (isDebug) res.setHeader('Access-Control-Allow-Origin', accessOrigin);
-  res.end('{"status":"error","message":"Invalid API Syntax"}');
+  res.status(400).json({ status: "error", message: "Invalid API Syntax"});
 });
 
 app.listen(config.get('Server.Port'), () => {
