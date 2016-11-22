@@ -42,7 +42,6 @@ app.get('/+schematics', (req, res) => {
     if (err) { res.end('{status: error}'); }
     else {
       const filenames = files.filter(fn => fn.endsWith('.schematic'));
-      const _files = filenames.map(fn => { return {filename: fn.replace(/\.schematic$/, '') } });
 
       const asyncReadInfos = [];
       for (var i = 0; i < filenames.length; i++) {
