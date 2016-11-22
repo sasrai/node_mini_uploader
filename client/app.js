@@ -143,14 +143,14 @@ dropZone.addEventListener('drop', handleFileSelect, false);
 // document.getElementById('sch-reload').addEventListener('click', reloadSchematics, false);
 $('#sch-files').bootstrapTable({
   toolbar: '#sch-toolbar',
-  sortName: 'upload_date',
+  sortName: 'modified_date',
   sortOrder: 'desc',
   pagination: true,
   search: true,
   columns: [
     { title: '名前', field: 'title', sortable: true },
     { title: 'ファイル名', field: 'filename', class: 'small', sortable: true },
-    { title: 'アップロード日時', field: 'upload_date', class: 'small', sortable: true,
+    { title: '更新日時', field: 'modified_date', class: 'small', sortable: true,
       formatter: (param, record, id) => {
         if (!param || param < 1) return ''
 
