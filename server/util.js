@@ -35,5 +35,22 @@ module.exports = {
         resolve(json);
       })
     }))
+  },
+
+  canDeleteFileOfSchematic(sch_name, delete_key) {
+    return new Promise((resolve, reject) => {
+      const infoPath = this.getInfoFilePath(sch_name);
+      if (!fs.existsSync(infoPath)) resolve(false);
+
+      fs.readFile(infoPath, (err, data) => {
+        if (err) reject(err);
+        else {
+          const json = JSON.parse(data);
+          console.log("fdk => " + json.delete_key);
+          console.log("rdk => " + delete_key);
+          resolve(!json.delete_key || json.delete_key === delete_key);
+        }
+      });
+    })
   }
 }
