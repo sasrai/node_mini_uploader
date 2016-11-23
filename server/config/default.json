@@ -9,7 +9,8 @@
       "dirs": {
         "schematics": "./schematics",
         "infoFiles": "./schematics/json"
-      }
+      },
+      "deleteKeyRound": 5
     }
   }
 }

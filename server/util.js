@@ -2,6 +2,8 @@ var fs = require('fs');
 var path = require('path');
 var config = require('config');
 
+var bcrypt = require('bcrypt');
+
 
 module.exports = {
   getSchemFilePath(sch_name) {
@@ -10,6 +12,17 @@ module.exports = {
   getInfoFilePath(sch_name) {
     return `${config.get('App.uploader.dirs.infoFiles')}/${sch_name}.json`;
   },
+
+  encodeDeleteKey(key) {
+    return new Promise((resolve, reject) => {
+      if (!key) return resolve();
+      bcrypt.hash(key, parseInt(config.get('App.uploader.deleteKeyRound')), (err, hash) => {
+        if (err) reject(err);
+        else resolve(hash);
+      });
+    });
+  },
+
   readSchematicJSON(sch_name, isSecure = true) {
     return new Promise((resolve) => {
       fs.readFile(this.getInfoFilePath(sch_name), (err, data) => {
@@ -38,7 +51,7 @@ module.exports = {
   },
 
   canDeleteFileOfSchematic(sch_name, delete_key) {
-    return new Promise((resolve, reject) => {
+    return (new Promise((resolve, reject) => {
       const infoPath = this.getInfoFilePath(sch_name);
       if (!fs.existsSync(infoPath)) resolve(false);
 
@@ -46,11 +59,15 @@ module.exports = {
         if (err) reject(err);
         else {
           const json = JSON.parse(data);
-          console.log("fdk => " + json.delete_key);
-          console.log("rdk => " + delete_key);
-          resolve(!json.delete_key || json.delete_key === delete_key);
+          resolve(json.delete_key);
         }
       });
-    })
+    }))
+    .then((hashed_delete_key) => new Promise((resolve, reject) => {
+      bcrypt.compare(delete_key, hashed_delete_key, (err, res) => {
+        if (err) reject(err);
+        else resolve(res);
+      });
+    }))
   }
 }

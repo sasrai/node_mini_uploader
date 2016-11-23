@@ -92,13 +92,14 @@ app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res,
       const dir = config.get('App.uploader.dirs.infoFiles');
       if (fs.existsSync(dir)) fs.mkdir(dir, (err) => resolve());
     }))
-    .then(() => new Promise((resolve, reject) => {
+    .then(() => Util.encodeDeleteKey(req.body.delete_key))
+    .then((encoded_delete_key) => new Promise((resolve, reject) => {
       // その他情報をメモする
       const fileInfo = {
         title: req.body.title,
         original_name: req.file.originalname,
         description: req.body.description,
-        delete_key: req.body.delete_key,
+        delete_key: encoded_delete_key,
         upload_date: Date.now()
       };
 
@@ -122,9 +123,8 @@ app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res,
 app.delete('/+schematics/:sch_name', uploader.single('delete_key'), (req, res) => {
   console.log("delete => " + req.params.sch_name);
 
-  Util.canDeleteFileOfSchematic(req.params.sch_name, req.body.delete_key)
+  Promise.resolve(Util.canDeleteFileOfSchematic(req.params.sch_name, req.body.delete_key))
   .then((canDelete) => {
-    console.log("delete check => " + canDelete);
     // 削除キーチェックに引っかかった場合はrejectしてcatchへ飛ばす
     if (!canDelete) return Promise.reject({ Error: "Delete key does not match", Status: 403 });
   })
