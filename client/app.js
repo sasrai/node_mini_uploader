@@ -1,4 +1,4 @@
-const uploaderApiURL = 'http://mcmap.sasrai.jp/%E9%85%94%E3%81%84%E3%81%A9%E3%82%8C/uploader/api';
+const uploaderApiURL = './api';
 var lastUpdateTime = -1;
 var uploadFilesCache = [];
 
