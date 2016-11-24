@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+ uploader:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'npm run start'
+    ports:
+      - "8334:8334"
+

@@ -15,7 +15,7 @@ services:
     user: 1000:1000
     command: 'npm run start.dev'
     ports:
-      - "8334:8334"
+      - "${HOSTPORT}:8334"
     volumes_from:
       - "datastore"
 

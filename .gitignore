@@ -2,3 +2,5 @@
 prepros.cfg
 /.vscode
 /.env
+/server/config/local.*
+/server/config/local-*

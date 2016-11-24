@@ -29,7 +29,8 @@ app.use(morgan('[:date[clf]] :remote-addr :remote-user ":method :url HTTP/:http-
 const uploader = multer({ dest: 'schematics' });
 
 const corsOptions = {
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  origin: ''
 }
 if (isDebug) corsOptions.origin = config.get('Server.AccessOriginURL');
 app.use(cors(corsOptions));
