@@ -1,8 +1,8 @@
 {
   "Server": {
     "Port": 8334,
-    "Debug": true,
-    "AccessOriginURL": "http://localhost:8001"
+    "Debug": false,
+    "AccessOriginURL": "http://localhost:800*"
   },
   "App": {
     "uploader": {
