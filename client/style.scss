@@ -1,0 +1,67 @@
+#drop-zone {
+    margin-bottom: 0.3em;
+    border: 3px dashed #bbb;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    font: 20pt bold 'Vollkorn';
+    color: #bbb;
+    transition: padding 0.2s linear;
+    &.hover {
+        border-color: darkorange;
+        padding: 40px;
+    }
+    &+output {
+        margin-bottom: 1.5em;
+    }
+}
+
+output#list {
+    width: 100%;
+
+    .sch-upload-items {
+        padding: 0.1em;
+
+        .btn-group {
+            width: 100%;
+            margin-bottom: 1em;
+        }
+
+        .btn {
+            width: 50%;
+        }
+
+        .border-box {
+            padding: 0;
+            box-sizing: border-box;
+            border: 1px solid #eee;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+        }
+
+        .filename {
+            padding: 0.15em;
+            text-align: center;
+            background-color: #eef8ff;;
+        }
+    }
+}
+
+#sch-toolbar {
+    &>span.updated-time {
+        position: relative;
+        bottom: -8px;
+        margin-left: 0.5em;
+        font-size: 9pt;
+        vertical-align: bottom;
+    }
+
+    &>span.updated-time > span {
+        position: relative;
+        bottom: -3px;
+        font-weight: bold;
+    }
+}
