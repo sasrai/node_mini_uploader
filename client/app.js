@@ -157,6 +157,13 @@ $('#sch-files').bootstrapTable({
   sortOrder: 'desc',
   pagination: true,
   search: true,
+  onResetView: function(ev) {
+    new Clipboard('.sch-command-copy', {
+      text: function(trigger) {
+        return `//schem load ${$(trigger).data('filename')}`;
+      }
+    })
+  },
   columns: [
     { title: '名前', field: 'title', sortable: true },
     { title: 'ファイル名', field: 'filename', class: 'small', sortable: true },
@@ -174,11 +181,23 @@ $('#sch-files').bootstrapTable({
       }
     },
     { title: '詳細', field: 'description', class: 'small' },
-    { title: 'ダウンロード', field: 'download',
+    { title: '操作', field: 'dropdown',
       formatter: (param, record, id) => {
-        var downloadUrl = uploaderApiURL + '/schematics/' + record.filename + '/download';
-        return '<a class="btn btn-primary btn-info btn-sm" href="' + downloadUrl
-        + '">ダウンロード <i class="fa fa-download" aria-hidden="true" /></a>'} },
+        const downloadUrl = uploaderApiURL + '/schematics/' + record.filename + '/download';
+
+        // TODO: 結合重いはずだからテンプレート化する
+        const dropdowns = $('<div></div>');
+        dropdowns.append('<div class="btn-group btn-group-sm"></div>');
+        $('.btn-group', dropdowns).append(`<button type="button" class="btn btn-secondary btn-no-outline sch-command-copy" data-filename="${record.filename}"><small>コマンドをコピー</small><i class="fa fa-clipboard" aria-hidden="true"></i></button>`);
+        $('.btn-group', dropdowns).append('<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>');
+        $('.btn-group', dropdowns).append('<div class="dropdown-menu"></div>');
+        $('.dropdown-menu', dropdowns).append('<h6 class="dropdown-header">その他操作</h6>');
+        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="${downloadUrl}">ダウンロード <i class="fa fa-download" aria-hidden="true" /></a>`);
+        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="#">削除(未実装) <i class="fa fa-trash" aria-hidden="true" /></a>`);
+
+        return dropdowns.html();
+      }    
+    },
   ],
   onRefresh: () => { reloadSchematics(); lastUpdateTime = Date.now(); startUTDisplay(); }
 });

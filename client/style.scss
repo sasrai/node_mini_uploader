@@ -48,6 +48,13 @@ output#list {
             text-align: center;
             background-color: #eef8ff;;
         }
+
+        .overwrite {
+            margin-top: 0.3em;
+            span {
+                font-size: 10pt;
+            }
+        }
     }
 }
 
@@ -65,4 +72,18 @@ output#list {
         bottom: -3px;
         font-weight: bold;
     }
+}
+.sch-list .bootstrap-table {
+    .fixed-table-body {
+        overflow-x: initial;
+        overflow-y: initial;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.btn-no-outline {
+    outline: none !important;
 }
