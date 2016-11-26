@@ -1,0 +1,22 @@
+<li class="sch-upload-items col-xs-12 col-sm-12 col-md-6 col-lg-4">
+  <div class="border-box">
+    <p class="filename">
+      <strong data-content="filename"></strong>
+    </p>
+    <div class="container-fluid">
+      <div class="form-group title">
+        <label>タイトル</label><input class="form-control" data-content="title" name="title" placeholder="表示タイトルを入力してください(必須)" />
+      </div>
+      <div class="form-group description">
+        <label>詳細</label><textarea class="form-control" name="description" placeholder="ファイルの説明分を入力してください(任意)" rows="2"></textarea>
+      </div>
+      <div class="form-group delete-key">
+        <label>削除キー</label><input class="form-control" name="delete_key" placeholder="削除に利用するキー(任意)" />
+      </div>
+      <label class="custom-control custom-checkbox overwrite hidden"><input class="custom-control-input" name="overwrite" type="checkbox" /><span class="custom-control-indicator"></span><span class="custom-control-description">同名ファイルを上書きしますか。</span></label>
+      <div aria-label="Schematics control" class="btn-group btn-block" role="group">
+        <button class="btn btn-info upload" type="button">アップロード</button><button class="btn btn-secondary cancel" type="button">キャンセル</button>
+      </div>
+    </div>
+  </div>
+</li>

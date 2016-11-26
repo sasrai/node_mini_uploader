@@ -1,6 +1,7 @@
 const uploaderApiURL = './api';
 var lastUpdateTime = -1;
 var uploadFilesCache = [];
+var schUploadItemTemplate = null;
 
 function reloadSchematics() {
   axios.get(`${uploaderApiURL}/schematics?${Date.now()}`)
@@ -30,33 +31,42 @@ function uploadSchematicFile(file, props, cb) {
   })
 }
 
+function loadSUITemplate() {
+  axios('./sch-upload-item-template.html')
+  .then((response) => {
+    schUploadItemTemplate = $(response.data);
+  });
+}
+
+var aaa;
 function renderOutput(files) {
+  // テンプレートキャッシュを更新
+  loadSUITemplate();
+  
   // files is a FileList of File objects. List some properties.
-  var output = [];
+  let output = [];
   for (var i = 0, f; f = files[i]; i++) {
-    output.push('<div class="sch-upload-items col-xs-12 col-sm-12 col-md-6 col-lg-4" data-id=' + i + '><div class="border-box">',
-                '<p class="filename"><strong>' + escape(f.name) + '</strong></p>',
-                '<div class="container-fluid">',
-                  '<div class="form-group">',
-                    '<label for="' + i + '-title">タイトル</label>',
-                    '<input class="form-control" name="title" id="' + i + '-title" placeholder="表示タイトルを入力してください(必須)">',
-                  '</div>',
-                  '<div class="form-group">',
-                    '<label for="' + i + '-description">詳細</label>',
-                    '<textarea class="form-control" name="description" id="' + i + '-description" rows="2" placeholder="ファイルの説明分を入力してください(任意)"></textarea>',
-                  '</div>',
-                  '<div class="form-group">',
-                    '<label for="' + i + '-delete_key">削除キー(処理未実装)</label>',
-                    '<input class="form-control" name="delete_key" id="' + i + '-delete_key" placeholder="削除キー(任意)">',
-                  '</div>',
-                  '<div class="btn-group btn-block" role="group" aria-label="Schematics control">',
-                    '<button type="button" class="btn btn-info upload">アップロード <i class="fa fa-upload" aria-hidden="true"></i></button>',
-                    '<button type="button" class="btn btn-secondary cancel">キャンセル</button>',
-                  '</div>',
-                '</div>',
-                '</div></div>');
+    const itemNode = schUploadItemTemplate.clone();
+
+    itemNode.data('id', i);
+    $('p.filename strong', itemNode).text(escapeHtml(f.name));
+
+    $('.form-group.title label', itemNode).attr('for', `${i}-title`);
+    $('.form-group.title input', itemNode).attr('id', `${i}-title`);
+
+    $('.form-group.description label', itemNode).attr('for', `${i}-description`);
+    $('.form-group.description textarea', itemNode).attr('id', `${i}-description`);
+
+    $('.form-group.delete-key label', itemNode).attr('for', `${i}-delete-key`);
+    $('.form-group.delete-key input', itemNode).attr('id', `${i}-delete-key`);
+
+    // 同名ファイルが一覧に存在する場合は上書きチェックを表示
+
+    output.push(itemNode);
   }
-  document.getElementById('list').innerHTML = '<ul class="container-fluid">' + output.join('') + '</ul>';
+  $('output#list').html('<ul class="container-fluid"></ul>');
+  $('output#list ul').append(output);
+  // document.getElementById('list').innerHTML = '' + output.join('') + '</ul>';
 
   // 全部のキー操作イベントでバリデーションチェックかける
   $('.sch-upload-items input[name=title]').on('blur keypress keyup', function() {
@@ -178,6 +188,7 @@ $('#sch-toolbar > button.refresh').on('click', () => {
   $('#sch-files').bootstrapTable('refresh');
   setTimeout(() => $('#sch-toolbar > button.refresh').removeAttr('disabled'), 1000);
 });
+loadSUITemplate();
 
 var schUTDisplay = $('#sch-toolbar > span.updated-time')[0];
 var schUTUpdateTimer = null;
@@ -205,7 +216,21 @@ window.schFilesHelper = {
     const sf = $('#sch-files'); 
     sf.bootstrapTable('removeAll');
     data.forEach((d) => {
-      sf.bootstrapTable('append', Object.assign({title:'', filename: '', upload_date: 0, description: '', download: ''}, d));
+      sf.bootstrapTable('append', Object.assign({
+        title:'', filename: '', upload_date: 0, description: '', dropdown: ''
+      }, d));
     });
   }
+}
+
+function escapeHtml(content) {
+  var TABLE_FOR_ESCAPE_HTML = {
+    "&": "&amp;",
+    "\"": "&quot;",
+    "<": "&lt;",
+    ">": "&gt;"
+  };
+  return content.replace(/[&"<>]/g, function(match) {
+    return TABLE_FOR_ESCAPE_HTML[match];
+  });
 }

@@ -1,0 +1,21 @@
+li.sch-upload-items.col-xs-12.col-sm-12.col-md-6.col-lg-4
+  .border-box
+    p.filename
+      strong[data-content="filename"]
+    .container-fluid
+      .form-group.title
+        label タイトル
+        input.form-control[name="title" data-content="title" placeholder="表示タイトルを入力してください(必須)"]
+      .form-group.description
+        label 詳細
+        textarea.form-control[rows="2" name="description" placeholder="ファイルの説明分を入力してください(任意)"]
+      .form-group.delete-key
+        label 削除キー
+        input.form-control[name="delete_key" placeholder="削除に利用するキー(任意)"]
+      label.custom-control.custom-checkbox.overwrite.hidden
+        input.custom-control-input[type="checkbox" name="overwrite"]
+        span.custom-control-indicator
+        span.custom-control-description 同名ファイルを上書きしますか。
+      .btn-group.btn-block[role="group" aria-label="Schematics control"]
+        button.btn.btn-info.upload[type="button"] アップロード
+        button.btn.btn-secondary.cancel[type="button"] キャンセル
