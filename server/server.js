@@ -129,7 +129,7 @@ app.delete('/+schematics/:sch_name', uploader.single('delete_key'), (req, res) =
     // 削除キーチェックに引っかかった場合はrejectしてcatchへ飛ばす
     if (!canDelete) return Promise.reject({ Error: "Delete key does not match", Status: 403 });
   })
-  .then(Util.readSchematicJSON(req.params.sch_name))
+  .then(() => Util.readSchematicJSON(req.params.sch_name))
   .then((fileInfo) => new Promise((resolve, reject) => {
     // 削除処理1
     fs.unlink(Util.getSchemFilePath(req.params.sch_name), (err) => {
@@ -146,7 +146,7 @@ app.delete('/+schematics/:sch_name', uploader.single('delete_key'), (req, res) =
   }))
   .then((fileInfo) => {
     // 削除完了レスポンス
-    res.json({ status: 'success', fileInfo });
+    res.json({ status: 'success', file: fileInfo });
   })
   .catch((err) => {
     // エラー返答
