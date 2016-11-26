@@ -38,7 +38,6 @@ function loadSUITemplate() {
   });
 }
 
-var aaa;
 function renderOutput(files) {
   // テンプレートキャッシュを更新
   loadSUITemplate();
@@ -196,7 +195,7 @@ $('#sch-files').bootstrapTable({
         $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="#">削除(未実装) <i class="fa fa-trash" aria-hidden="true" /></a>`);
 
         return dropdowns.html();
-      }    
+      }
     },
   ],
   onRefresh: () => { reloadSchematics(); lastUpdateTime = Date.now(); startUTDisplay(); }
