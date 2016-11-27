@@ -91,10 +91,12 @@ app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res,
     .then(() => new Promise((resolve, reject) => {
       // infoディレクトリが無かったら作成
       const dir = config.get('App.uploader.dirs.infoFiles');
-      if (!fs.existsSync(dir)) fs.mkdir(dir, (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
+      if (!fs.existsSync(dir)) {
+        fs.mkdir(dir, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      } else resolve();
     }))
     .then(() => Util.encodeDeleteKey(req.body.delete_key))
     .then((encoded_delete_key) => new Promise((resolve, reject) => {
