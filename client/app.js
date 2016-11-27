@@ -31,6 +31,31 @@ function uploadSchematicFile(file, props, cb) {
   })
 }
 
+function deleteSchematicFile(file, delete_key) {
+  var data = new FormData();
+  data.append('delete_key', getHashedDeleteKey(delete_key));
+  axios.delete(`${uploaderApiURL}/schematics/${file}`, {
+    data: data
+  })
+  .then((response) => {
+    reloadSchematics();
+    setTimeout(() => swal(`${response.data.file.filename}を削除しました`, "", "success"), 500);
+  })
+  .catch((error) => {
+    console.log(error);
+    setTimeout(() => swal(`${file}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error"), 500);
+  });
+}
+
+function getHashedDeleteKey(rawkey) {
+  var shainfo = CryptoJS.SHA256(rawkey);
+  var hashstr = '';
+  for (var i = 0; i < shainfo.words.length; i++) {
+    hashstr += (shainfo.words[i] >>> 0).toString(16);
+  }
+  return hashstr;
+}
+
 function loadSUITemplate() {
   axios('./sch-upload-item-template.html')
   .then((response) => {
@@ -65,7 +90,6 @@ function renderOutput(files) {
   }
   $('output#list').html('<ul class="container-fluid"></ul>');
   $('output#list ul').append(output);
-  // document.getElementById('list').innerHTML = '' + output.join('') + '</ul>';
 
   // 全部のキー操作イベントでバリデーションチェックかける
   $('.sch-upload-items input[name=title]').on('blur keypress keyup', function() {
@@ -90,12 +114,7 @@ function renderOutput(files) {
 
     var delkey = $('input[name=delete_key]', item).val()
     if (delkey && delkey != '') { // 16進数化
-      var shainfo = CryptoJS.SHA256(delkey);
-      var hashstr = '';
-      for (var i = 0; i < shainfo.words.length; i++) {
-        hashstr += (shainfo.words[i] >>> 0).toString(16);
-      }
-      props['delete_key'] = hashstr;
+      props['delete_key'] = getHashedDeleteKey(delkey);
     }
 
     $('button', item).attr('disabled', 'disabled');
@@ -162,6 +181,23 @@ $('#sch-files').bootstrapTable({
         return `//schem load ${$(trigger).data('filename')}`;
       }
     })
+    $('.sch-file-delete').on('click', function() {
+      swal({
+        title: "削除確認",
+        text: `<strong>${$(this).data('filename')}</strong>を削除してもよろしいですか？<p><small style="font-size:9pt">※ 未記入の場合は削除キー未登録のアイテムのみ削除できます。</small></p>`,
+        type: 'input',
+        html: true,
+        customClass: 'sa-delete-key-input',
+        showCancelButton: true,
+        cancelButtonText: 'キャンセル',
+        confirmButtonColor: '#DD6B55',
+        confirmButtonText: '削除するよ!',
+        inputPlaceholder: '削除キーを入力してください。'
+      }, (inputValue) => {
+        if (false != inputValue)
+          deleteSchematicFile($(this).data('filename'), inputValue);
+      });
+    })
   },
   columns: [
     { title: '名前', field: 'title', sortable: true },
@@ -192,7 +228,7 @@ $('#sch-files').bootstrapTable({
         $('.btn-group', dropdowns).append('<div class="dropdown-menu"></div>');
         $('.dropdown-menu', dropdowns).append('<h6 class="dropdown-header">その他操作</h6>');
         $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="${downloadUrl}">ダウンロード <i class="fa fa-download" aria-hidden="true" /></a>`);
-        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="#">削除(未実装) <i class="fa fa-trash" aria-hidden="true" /></a>`);
+        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item sch-file-delete" href="#" data-filename="${record.filename}">削除 <i class="fa fa-trash" aria-hidden="true" /></a>`);
 
         return dropdowns.html();
       }
