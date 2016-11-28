@@ -82,7 +82,7 @@ function renderOutput(files) {
 
     $('button', item).attr('disabled', 'disabled');
 
-    uploadSchematicFile(uploadFilesCache[id], props, (error, responce) => {
+    schematicsAPI.uploadFile(uploadFilesCache[id], props, (error, responce) => {
       if (error) {
         $('button', item).removeAttr('disabled');
        console.log('id' + id + 'がアップロードエラー起こしてます');

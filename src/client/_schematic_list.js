@@ -24,7 +24,15 @@ $('#sch-files').bootstrapTable({
         inputPlaceholder: '削除キーを入力してください。'
       }, (inputValue) => {
         if (false != inputValue)
-          deleteSchematicFile($(this).data('filename'), inputValue);
+          schematicsAPI.deleteFile($(this).data('filename'), inputValue, (err, response) => {
+            setTimeout(() => {
+              if (err) swal(`${$(this).data('filename')}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error");
+              else {
+                swal(`${response.data.file.filename}を削除しました`, "", "success");
+                $('#sch-files').bootstrapTable('refresh');
+              }
+            }, 500);
+          });
       });
     })
   },
@@ -47,8 +55,6 @@ $('#sch-files').bootstrapTable({
     { title: '詳細', field: 'description', class: 'small' },
     { title: '操作', field: 'dropdown',
       formatter: (param, record, id) => {
-        const downloadUrl = uploaderApiURL + '/schematics/' + record.filename + '/download';
-
         // TODO: 結合重いはずだからテンプレート化する
         const dropdowns = $('<div></div>');
         dropdowns.append('<div class="btn-group btn-group-sm"></div>');
@@ -56,14 +62,19 @@ $('#sch-files').bootstrapTable({
         $('.btn-group', dropdowns).append('<button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>');
         $('.btn-group', dropdowns).append('<div class="dropdown-menu"></div>');
         $('.dropdown-menu', dropdowns).append('<h6 class="dropdown-header">その他操作</h6>');
-        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="${downloadUrl}">ダウンロード <i class="fa fa-download" aria-hidden="true" /></a>`);
+        $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item" href="${schematicsAPI.getDownloadURL(record.filename)}">ダウンロード <i class="fa fa-download" aria-hidden="true" /></a>`);
         $('.dropdown-menu', dropdowns).append(`<a class="dropdown-item sch-file-delete" href="#" data-filename="${record.filename}">削除 <i class="fa fa-trash" aria-hidden="true" /></a>`);
 
         return dropdowns.html();
       }
     },
   ],
-  onRefresh: () => { reloadSchematics(); lastUpdateTime = Date.now(); startUTDisplay(); }
+  onRefresh: () => {
+    schematicsAPI.reload((error, data) => {
+      schFilesHelper.updateData(data);
+      lastUpdateTime = Date.now(); startUTDisplay();
+    });
+  }
 });
 $('#sch-files').bootstrapTable('refresh');
 $('#sch-toolbar > button.refresh').on('click', () => {
