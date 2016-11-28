@@ -4,3 +4,5 @@ prepros.cfg
 /.env
 /server/config/local.*
 /server/config/local-*
+/client/*.map
+
