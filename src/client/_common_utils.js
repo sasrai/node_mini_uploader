@@ -25,3 +25,13 @@ function escapeHtml(content) {
     return TABLE_FOR_ESCAPE_HTML[match];
   });
 }
+
+function getDateStringFromUTCMillis(millisec) {
+  const date = new Date(millisec);
+  return [
+    date.getFullYear(),
+    date.getMonth() + 1,
+    date.getDate()
+  ].join( '/' ) + ' '
+  + date.toLocaleTimeString();
+}

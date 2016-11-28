@@ -43,13 +43,7 @@ $('#sch-files').bootstrapTable({
       formatter: (param, record, id) => {
         if (!param || param < 1) return ''
 
-        const date = new Date(param);
-        return [
-          date.getFullYear(),
-          date.getMonth() + 1,
-          date.getDate()
-        ].join( '/' ) + ' '
-        + date.toLocaleTimeString();
+        return getDateStringFromUTCMillis(param);
       }
     },
     { title: '詳細', field: 'description', class: 'small' },
