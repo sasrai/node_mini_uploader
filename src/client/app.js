@@ -6,5 +6,4 @@
 
 // Global Data
 var lastUpdateTime = -1;
-var uploadFilesCache = [];
 var schUploadItemTemplate = null;

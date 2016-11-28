@@ -76,7 +76,6 @@ $('#sch-toolbar > button.refresh').on('click', () => {
   $('#sch-files').bootstrapTable('refresh');
   setTimeout(() => $('#sch-toolbar > button.refresh').removeAttr('disabled'), 1000);
 });
-loadSUITemplate();
 
 var schUTDisplay = $('#sch-toolbar > span.updated-time')[0];
 var schUTUpdateTimer = null;

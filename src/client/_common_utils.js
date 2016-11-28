@@ -7,13 +7,6 @@ function getHashedDeleteKey(rawkey) {
   return hashstr;
 }
 
-function loadSUITemplate() {
-  axios('./sch-upload-item-template.html')
-  .then((response) => {
-    schUploadItemTemplate = $(response.data);
-  });
-}
-
 function escapeHtml(content) {
   var TABLE_FOR_ESCAPE_HTML = {
     "&": "&amp;",
