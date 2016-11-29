@@ -82,7 +82,12 @@ app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res,
 
     // TODO: md5で上書きチェックを追加
     // TODO: 削除キーで上書きロックを追加
-    Promise.resolve(new Promise((resolve, reject) => {
+    Promise.resolve(Util.canDeleteFileOfSchematic(sch_name, req.body.overwrite_key))
+    .then((canDelete) => {
+      // 削除キーチェックに引っかかった場合はrejectしてcatchへ飛ばす
+      if (!canDelete) return Promise.reject({ Error: "Delete key does not match", Status: 403 });
+    })
+    .then(() => new Promise((resolve, reject) => {
       fs.rename(req.file.path, upload_name, (err) => {
         if (err) reject(err);
         else resolve();
