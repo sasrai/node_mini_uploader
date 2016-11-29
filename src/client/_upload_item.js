@@ -96,13 +96,9 @@ class UploadSchematicItem {
     this.duplicateFile = file;
 
     if (this.isDuplicated) {
-      console.log('duplicated')
       $('label.overwrite', this.template).show();
-      console.log($('label.overwrite', this.template))
     } else {
-      console.log('hide...')
       $('label.overwrite', this.template).hide();
-      console.log($('label.overwrite', this.template))
     }
   }
 
