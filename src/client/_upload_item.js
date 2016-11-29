@@ -155,7 +155,7 @@ class UploadSchematicItem {
     this.updateButtonStatus();
   }
   handleCancelButtonClick(evt) {
-    setTimeout(() => this.template.trigger("schup:uploaded", { id: this.id }), 50);
+    this.template.trigger("schup:canceled", { id: this.id });
   }
   handleUploadButtonClick(evt) {
     this.uploading = true;
