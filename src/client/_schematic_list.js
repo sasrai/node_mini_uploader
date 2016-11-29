@@ -124,5 +124,9 @@ class SchematicsListController {
       }, d));
     });
   }
+
+  static GetFileList() {
+    return $('#sch-files').bootstrapTable('getData').map((record) => record.original_name);
+  }
 }
 SchematicsListController.TableInitialize();

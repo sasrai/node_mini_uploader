@@ -38,6 +38,7 @@ class DragAndDropUploader {
   renderOutput() {
     // files is a FileList of File objects. List some properties.
     let output = [];
+    const fileList = SchematicsListController.GetFileList();
     for (var i = 0, f; f = this.uploadFilesCache[i]; i++) {
       const itemNode = new UploadSchematicItem(i, f);
 
@@ -54,6 +55,7 @@ class DragAndDropUploader {
       });
 
       // 同名ファイルが一覧に存在する場合は上書きチェックを表示
+      if (fileList.indexOf(f.name) >= 0) itemNode.DuplicateFile = f;
 
       output.push(itemNode.getJQueryObject());
     }

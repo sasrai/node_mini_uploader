@@ -17,10 +17,14 @@ class UploadSchematicItem {
     if (!UploadSchematicItem.Template)
       throw new Error("Unloaded template data.");
 
+    // テンプレートのクローンを作成
+    this.template = $(UploadSchematicItem.Template.clone());
+
     // メンバ変数初期化
     this.newFilename = null;
+    this.DuplicateFile = null;
+    this.uploading = false; // TODO: 状態遷移を実装
 
-    this.template = $(UploadSchematicItem.Template.clone());
     if (arguments.length > 0) this.Id = id;
     if (arguments.length > 1) {
       this.filedata = file;
@@ -29,9 +33,38 @@ class UploadSchematicItem {
     if (arguments.length > 2) this.isDuplicateFile = false;
 
     // 各イベントの設定
-    $('input[name=title]', this.template).on('blur keypress keyup', (evt) => this.handleTitleValidate(evt));
-    $('button.upload', this.template).on('click', (evt) => this.handleUploadButtonClick(evt));
-    $('button.cancel', this.template).on('click', (evt) => this.handleCancelButtonClick(evt));
+    this.setLocalEventHandler();
+  }
+
+  get canUploadable() {
+    let uploadable = true;
+
+    if (!this.isValidatedTitle) uploadable = false;
+
+    if (this.isDuplicated && !this.isOverwrite) uploadable = false;
+
+    if (this.isUploading) uploadable = false;
+
+    return uploadable;
+  }
+  get canUploadCancel() {
+    let canCancel = true;
+
+    if (this.isUploading) canCancel = false;
+
+    return canCancel;
+  }
+  get isValidatedTitle() {
+    return this.Title.length > 0;
+  }
+  get isDuplicated() {
+    return !!this.duplicateFile;
+  }
+  get isOverwrite() {
+    return !!$('input[name=overwrite]:checked', this.template).val();
+  }
+  get isUploading() {
+    return this.uploading; // TODO: 状態遷移を実装
   }
 
   set Id(id) {
@@ -59,7 +92,18 @@ class UploadSchematicItem {
   }
 
   // 同名ファイルが存在してる場合にtrueに設定
-  set isDuplicateFile(flag) {
+  set DuplicateFile(file) {
+    this.duplicateFile = file;
+
+    if (this.isDuplicated) {
+      console.log('duplicated')
+      $('label.overwrite', this.template).show();
+      console.log($('label.overwrite', this.template))
+    } else {
+      console.log('hide...')
+      $('label.overwrite', this.template).hide();
+      console.log($('label.overwrite', this.template))
+    }
   }
 
   getJQueryObject() {
@@ -77,27 +121,49 @@ class UploadSchematicItem {
     $('.form-group.delete-key label', this.template).attr('for', `${this.Id}-delete-key`);
     $('.form-group.delete-key input', this.template).attr('id', `${this.Id}-delete-key`);
 
+    // タイトルのバリデーションチェックを実行
     $('input[name=title]', this.template).trigger('blur');
+
+    // ボタンの状態を更新
+    this.updateButtonStatus();
 
     return this.template;
   }
 
+  updateButtonStatus() {
+    if (this.canUploadable) $('button.upload', this.template).removeAttr('disabled');
+    else $('button.upload', this.template).attr('disabled', 'disabled');
+
+    if (this.canUploadCancel) $('button.cancel', this.template).removeAttr('disabled');
+    else $('button.cancel', this.template).attr('disabled', 'disabled');
+  }
+
+  setLocalEventHandler() {
+    $('input[name=title]',     this.template).on('blur keypress keyup', (evt) => this.handleTitleValidate(evt));
+    $('button.upload',         this.template).on('click',  (evt) => this.handleUploadButtonClick(evt));
+    $('button.cancel',         this.template).on('click',  (evt) => this.handleCancelButtonClick(evt));
+    $('input[name=overwrite]', this.template).on('change', (evt) => this.handleOverwriteCheckChanged(evt));
+  }
+
   handleTitleValidate(evt) {
-    if (this.Title.length > 0) {
+    if (this.isValidatedTitle) {
       $('.form-group.title', this.template).removeClass('has-danger');
       $('input[name=title]', this.template).removeClass('form-control-danger');
-      $('button.upload',     this.template).removeAttr('disabled');
     } else {
       $('.form-group.title', this.template).addClass('has-danger');
       $('input[name=title]', this.template).addClass('form-control-danger');
-      $('button.upload',     this.template).attr('disabled', 'disabled');
     }
+    this.updateButtonStatus();
+  }
+  handleOverwriteCheckChanged(evt) {
+    this.updateButtonStatus();
   }
   handleCancelButtonClick(evt) {
     setTimeout(() => this.template.trigger("schup:uploaded", { id: this.id }), 50);
   }
   handleUploadButtonClick(evt) {
-    $('button', this.template).attr('disabled', 'disabled');
+    this.uploading = true;
+    this.updateButtonStatus();
 
     let props = {
       title: this.Title,
@@ -111,14 +177,14 @@ class UploadSchematicItem {
 
     // TODO: filename差し替え処理を追加
     schematicsAPI.uploadFile(this.filedata, props, (error, responce) => {
+      this.uploading = false;
       if (error) {
-        $('button', this.template).removeAttr('disabled');
+        this.updateButtonStatus();
         this.template.trigger("schup:uploaderror", { id: this.id, Error: error });
       } else {
         this.template.trigger("schup:uploaded", { id: this.id, title: this.Title, filename: this.Filename });
       }
     });
-
   }
 
   setEventCancel(handler) {
