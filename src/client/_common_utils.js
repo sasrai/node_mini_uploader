@@ -29,3 +29,28 @@ function getDateStringFromUTCMillis(millisec) {
   ].join( '/' ) + ' '
   + date.toLocaleTimeString();
 }
+
+function showDeleteKeyDialog(filename, isOverwrite = false, callback) {
+  if (arguments.length == 2) {
+    if (typeof isOverwrite === 'function') {
+      callback = isOverwrite;
+      isOverwrite = false;
+    }
+  }
+  let msg = (isOverwrite) ? '上書き' : '削除';
+  swal({
+    title: `${msg}確認`,
+    text: `<strong>${filename}</strong>を${msg}してもよろしいですか？<p><small style="font-size:9pt">※ 未記入の場合は削除キー未登録のアイテムのみ${msg}できます。</small></p>`,
+    type: 'input',
+    html: true,
+    customClass: 'sa-delete-key-input',
+    showCancelButton: true,
+    cancelButtonText: 'キャンセル',
+    confirmButtonColor: '#DD6B55',
+    confirmButtonText: `${msg}するよ!`,
+    inputPlaceholder: '削除キーを入力してください。'
+  }, (inputValue) => {
+    if (false !== inputValue)
+      if (typeof callback === 'function') callback(inputValue);
+  });
+}

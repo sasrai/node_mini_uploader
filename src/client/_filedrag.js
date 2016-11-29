@@ -38,9 +38,9 @@ class DragAndDropUploader {
   renderOutput() {
     // files is a FileList of File objects. List some properties.
     let output = [];
-    const fileList = SchematicsListController.GetFileList();
-    for (var i = 0, f; f = this.uploadFilesCache[i]; i++) {
-      const itemNode = new UploadSchematicItem(i, f);
+    const fileList = SchematicsListController.GetFileInfos();
+    for (var i = 0, file; file = this.uploadFilesCache[i]; i++) {
+      const itemNode = new UploadSchematicItem(i, file);
 
       // イベント設定
       itemNode.setEventCancel((evt, data) => {
@@ -53,9 +53,20 @@ class DragAndDropUploader {
         this.renderOutput();
         swal(`${data.title}のアップロードが完了しました`, '', 'success');
       });
+      itemNode.setEventUploadError((evt, data) => {
+        let errmsg = '';
+        if (data.Error.response.status == 403) {
+          errmsg = '上書きが出来ませんでした。削除キーが一致しません。';
+        }
+        swal(`${data.title}のアップロードに失敗しました。`, errmsg, 'error');
+      });
 
       // 同名ファイルが一覧に存在する場合は上書きチェックを表示
-      if (fileList.indexOf(f.name) >= 0) itemNode.DuplicateFile = f;
+      const index = fileList.map((info) => info.name).indexOf(file.name);
+      if (index >= 0) {
+        itemNode.DuplicateFile = file;
+        itemNode.EnabledDeleteKey = fileList[index].enabledDeleteKey;
+      }
 
       output.push(itemNode.getJQueryObject());
     }

@@ -11,28 +11,17 @@ $('#sch-files').bootstrapTable({
       }
     })
     $('.sch-file-delete').on('click', function() {
-      swal({
-        title: "削除確認",
-        text: `<strong>${$(this).data('filename')}</strong>を削除してもよろしいですか？<p><small style="font-size:9pt">※ 未記入の場合は削除キー未登録のアイテムのみ削除できます。</small></p>`,
-        type: 'input',
-        html: true,
-        customClass: 'sa-delete-key-input',
-        showCancelButton: true,
-        cancelButtonText: 'キャンセル',
-        confirmButtonColor: '#DD6B55',
-        confirmButtonText: '削除するよ!',
-        inputPlaceholder: '削除キーを入力してください。'
-      }, (inputValue) => {
-        if (false !== inputValue)
-          schematicsAPI.deleteFile($(this).data('filename'), inputValue, (err, response) => {
-            setTimeout(() => {
-              if (err) swal(`${$(this).data('filename')}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error");
-              else {
-                swal(`${response.data.file.filename}を削除しました`, "", "success");
-                SchematicsListController.ReloadList();
-              }
-            }, 500);
-          });
+      let filename = $(this).data('filename');
+      showDeleteKeyDialog(filename, (inputDeleteKey) => {
+        schematicsAPI.deleteFile(filename, inputDeleteKey, (err, response) => {
+          setTimeout(() => {
+            if (err) swal(`${filename}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error");
+            else {
+              swal(`${response.data.file.filename}を削除しました`, "", "success");
+              SchematicsListController.ReloadList();
+            }
+          }, 500);
+        });
       });
     })
   },
@@ -125,8 +114,8 @@ class SchematicsListController {
     });
   }
 
-  static GetFileList() {
-    return $('#sch-files').bootstrapTable('getData').map((record) => record.original_name);
+  static GetFileInfos() {
+    return $('#sch-files').bootstrapTable('getData').map((record) => { return { name: record.original_name, enabledDeleteKey: record.enabled_delete_key } });
   }
 }
 SchematicsListController.TableInitialize();

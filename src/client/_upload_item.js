@@ -103,6 +103,9 @@ class UploadSchematicItem {
   set EnabledDeleteKey(flag) {
     this.enabledDeleteKey = flag;
   }
+  get EnabledDeleteKey() {
+    return this.enabledDeleteKey;
+  }
 
   getJQueryObject() {
     // 各種レンダリング
@@ -126,6 +129,17 @@ class UploadSchematicItem {
     this.updateButtonStatus();
 
     return this.template;
+  }
+
+  performUpload(filedata, props) {
+    // TODO: filename差し替え処理を追加
+    schematicsAPI.uploadFile(filedata, props, (error, responce) => {
+      if (error) {
+        this.template.trigger("schup:uploaderror", { id: this.id, title: this.Title, filename: this.Filename, Error: error });
+      } else {
+        this.template.trigger("schup:uploaded", { id: this.id, title: this.Title, filename: this.Filename });
+      }
+    });
   }
 
   updateButtonStatus() {
@@ -173,16 +187,15 @@ class UploadSchematicItem {
       props['delete_key'] = getHashedDeleteKey(delkey);
     }
 
-    // TODO: filename差し替え処理を追加
-    schematicsAPI.uploadFile(this.filedata, props, (error, responce) => {
-      this.uploading = false;
-      if (error) {
-        this.updateButtonStatus();
-        this.template.trigger("schup:uploaderror", { id: this.id, Error: error });
-      } else {
-        this.template.trigger("schup:uploaded", { id: this.id, title: this.Title, filename: this.Filename });
-      }
-    });
+    if (this.EnabledDeleteKey) {
+      showDeleteKeyDialog(this.Title, true, (inputDeleteKey) => {
+        props['overwrite_key'] = getHashedDeleteKey(inputDeleteKey);
+        this.performUpload(this.filedata, props);
+      });
+    } else this.performUpload(this.filedata, props);
+
+    this.uploading = false;
+    this.updateButtonStatus();
   }
 
   setEventCancel(handler) {
