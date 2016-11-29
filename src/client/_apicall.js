@@ -27,7 +27,6 @@ class SchematicsAPI {
 
     axios.post(`${this.apiURL}/upload`, data)
     .then((response) => {
-      setTimeout(() => $('#sch-files').bootstrapTable('refresh'));
       if (callback && typeof callback == 'function') callback(null, response);
     })
     .catch((error) => {
