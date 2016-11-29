@@ -4,7 +4,7 @@ $('#sch-files').bootstrapTable({
   sortOrder: 'desc',
   pagination: true,
   search: true,
-  onResetView: function(ev) {
+  onResetView: function(evt) {
     new Clipboard('.sch-command-copy', {
       text: function(trigger) {
         return `//schem load ${$(trigger).data('filename')}`;
@@ -29,7 +29,7 @@ $('#sch-files').bootstrapTable({
               if (err) swal(`${$(this).data('filename')}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error");
               else {
                 swal(`${response.data.file.filename}を削除しました`, "", "success");
-                $('#sch-files').bootstrapTable('refresh');
+                SchematicsListController.ReloadList();
               }
             }, 500);
           });
@@ -65,16 +65,10 @@ $('#sch-files').bootstrapTable({
   ],
   onRefresh: () => {
     schematicsAPI.reload((error, data) => {
-      schFilesHelper.updateData(data);
+      SchematicsListController.UpdateData(data);
       lastUpdateTime = Date.now(); startUTDisplay();
     });
   }
-});
-$('#sch-files').bootstrapTable('refresh');
-$('#sch-toolbar > button.refresh').on('click', () => {
-  $('#sch-toolbar > button.refresh').attr('disabled', 'disabled');
-  $('#sch-files').bootstrapTable('refresh');
-  setTimeout(() => $('#sch-toolbar > button.refresh').removeAttr('disabled'), 1000);
 });
 
 var schUTDisplay = $('#sch-toolbar > span.updated-time')[0];
@@ -98,14 +92,37 @@ function startUTDisplay() {
   }, 500);
 }
 
-window.schFilesHelper = {
-  updateData: (data) => {
+class SchematicsListController {
+  static TableInitialize() {
+    // ページ表示時に1回リロード(refresh)を行う
+    SchematicsListController.ReloadList();
+
+    // 更新ボタンのイベントを設定(クリック時1秒間更新ボタンを無効化)
+    $('#sch-toolbar > button.refresh').on('click', (evt) => {
+      $('#sch-toolbar > button.refresh').attr('disabled', 'disabled');
+      SchematicsListController.ReloadList();
+      setTimeout(() => $('#sch-toolbar > button.refresh').removeAttr('disabled'), 1000);
+    });
+  }
+
+  // ファイルリストの更新を行う(BootstrapTableのrefreshイベント)
+  static ReloadList() {
+    $('#sch-files').bootstrapTable('refresh');
+  }
+
+  static UpdateData(original) {
     const sf = $('#sch-files'); 
+
+    // 現在のデータを一旦削除
     sf.bootstrapTable('removeAll');
-    data.forEach((d) => {
+
+    original.forEach((d) => {
+      // 1レコードずつ内容を補完しつつ追加
       sf.bootstrapTable('append', Object.assign({
+        // カラムに合わせて初期値を設定
         title:'', filename: '', upload_date: 0, description: '', dropdown: ''
       }, d));
     });
   }
 }
+SchematicsListController.TableInitialize();

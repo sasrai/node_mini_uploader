@@ -185,7 +185,7 @@ class DragAndDropUploader {
         this.renderOutput();
       });
       itemNode.setEventUploaded((evt, data) => {
-        setTimeout(() => $('#sch-files').bootstrapTable('refresh'));
+        SchematicsListController.ReloadList();
         this.uploadFilesCache.splice(data.id, 1);
         this.renderOutput();
         swal(`${data.title}のアップロードが完了しました`, '', 'success');
