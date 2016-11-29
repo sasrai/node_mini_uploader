@@ -67,12 +67,15 @@ module.exports = {
       });
     }))
     .then((hashed_delete_key) => new Promise((resolve, reject) => {
-      if (delete_key) {
+      if (hashed_delete_key) {
         bcrypt.compare(delete_key, hashed_delete_key, (err, res) => {
           if (err) reject(err);
           else resolve(res);
         });
-      } else resolve(true);
+      }
+      // ファイル側の削除キー未設定かつ削除キーを入力した場合は削除させない
+      else if (!hashed_delete_key && delete_key) resolve(false);
+      else resolve(true);
     }))
   }
 }
