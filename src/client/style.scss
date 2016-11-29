@@ -88,6 +88,17 @@ output#list {
     outline: none !important;
 }
 
+label.overwrite {
+    .custom-control-input:checked~.custom-control-indicator {
+        background-color: #95d6e9 !important;
+    }
+    span.custom-control-indicator {
+        background-color: #f0ad4e !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+}
+
 .sa-delete-key-input .sa-icon.sa-warning {
     display: block !important;
 }
