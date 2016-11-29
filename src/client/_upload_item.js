@@ -13,7 +13,7 @@ class UploadSchematicItem {
     });
   }
 
-  constructor(id, file, duplicate = false) {
+  constructor(id, file, duplicateFile = null, enabledDeleteKey = false) {
     if (!UploadSchematicItem.Template)
       throw new Error("Unloaded template data.");
 
@@ -22,8 +22,9 @@ class UploadSchematicItem {
 
     // メンバ変数初期化
     this.newFilename = null;
-    this.DuplicateFile = null;
+    this.DuplicateFile = duplicateFile;
     this.uploading = false; // TODO: 状態遷移を実装
+    this.enabledDeleteKey = enabledDeleteKey;
 
     if (arguments.length > 0) this.Id = id;
     if (arguments.length > 1) {
@@ -40,9 +41,7 @@ class UploadSchematicItem {
     let uploadable = true;
 
     if (!this.isValidatedTitle) uploadable = false;
-
     if (this.isDuplicated && !this.isOverwrite) uploadable = false;
-
     if (this.isUploading) uploadable = false;
 
     return uploadable;
@@ -100,6 +99,9 @@ class UploadSchematicItem {
     } else {
       $('label.overwrite', this.template).hide();
     }
+  }
+  set EnabledDeleteKey(flag) {
+    this.enabledDeleteKey = flag;
   }
 
   getJQueryObject() {

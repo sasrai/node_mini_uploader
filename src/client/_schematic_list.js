@@ -23,7 +23,7 @@ $('#sch-files').bootstrapTable({
         confirmButtonText: '削除するよ!',
         inputPlaceholder: '削除キーを入力してください。'
       }, (inputValue) => {
-        if (false != inputValue)
+        if (false !== inputValue)
           schematicsAPI.deleteFile($(this).data('filename'), inputValue, (err, response) => {
             setTimeout(() => {
               if (err) swal(`${$(this).data('filename')}の削除に失敗しました`, "挙動おかしい時は鯖管に教えてあげてね", "error");

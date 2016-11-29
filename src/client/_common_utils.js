@@ -1,4 +1,5 @@
 function getHashedDeleteKey(rawkey) {
+  if (!rawkey) return '';
   var shainfo = CryptoJS.SHA256(rawkey);
   var hashstr = '';
   for (var i = 0; i < shainfo.words.length; i++) {
