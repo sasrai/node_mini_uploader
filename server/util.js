@@ -31,6 +31,9 @@ module.exports = {
       });
     })
     .then((json) => {
+      // 削除キーが設定されてるかどうかのフラグを設定
+      json["enabled_delete_key"] = (json.delete_key && json.delete_key != '');
+
       if (isSecure) {
         const removeKeys = [
           'delete_key'
