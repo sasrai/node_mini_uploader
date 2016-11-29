@@ -67,10 +67,12 @@ module.exports = {
       });
     }))
     .then((hashed_delete_key) => new Promise((resolve, reject) => {
-      bcrypt.compare(delete_key, hashed_delete_key, (err, res) => {
-        if (err) reject(err);
-        else resolve(res);
-      });
+      if (delete_key) {
+        bcrypt.compare(delete_key, hashed_delete_key, (err, res) => {
+          if (err) reject(err);
+          else resolve(res);
+        });
+      } else resolve(true);
     }))
   }
 }

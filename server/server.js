@@ -116,9 +116,12 @@ app.post('/+schematics/upload', uploader.single('sch_file'), function (req, res,
         });
     }))
     .then((result) => res.json(result))
-    .catch((err) => res.status(500).json({
-      status: 'error', message: err.error
-    }));
+    .catch((err) => {
+      // エラー返答
+      let stcode = 500;
+      if (err.Status) stcode = err.Status;
+      res.status(stcode).json({ status: "error", message: err.Error });
+    });
 
   } else {
     res.status(400).json({ status: "error", message: "Invalid API Syntax"});
