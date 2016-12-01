@@ -54,7 +54,7 @@ module.exports = {
   },
 
   canDeleteFileOfSchematic(sch_name, delete_key) {
-    return (new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const infoPath = this.getInfoFilePath(sch_name);
       if (!fs.existsSync(infoPath)) resolve(false);
 
@@ -65,7 +65,7 @@ module.exports = {
           resolve(json.delete_key);
         }
       });
-    }))
+    })
     .then((hashed_delete_key) => new Promise((resolve, reject) => {
       if (hashed_delete_key) {
         bcrypt.compare(delete_key, hashed_delete_key, (err, res) => {
